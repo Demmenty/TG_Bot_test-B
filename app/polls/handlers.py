@@ -5,6 +5,7 @@ from aiogram.utils.exceptions import BotKicked
 from main import dp
 from . import db, keyboards, phrases
 from .dataclasses import Poll
+from .decorators import pm_only
 
 # сложно было понять, как именно требуется осуществить функцию создания опросов
 # по-хорошему, хочется добавить ещё аутентификацию админа, возможно API
@@ -12,30 +13,21 @@ from .dataclasses import Poll
 # но времени просто не остается
 
 @dp.message_handler(commands=["poll"])
+@pm_only
 async def show_polls_menu(msg: types.Message):
     """показывает меню управления опросами"""
-
-    # команда только для лички
-    # TODO вынести в декораторы, если останется время
-    if msg.chat.type in ("group", "supergroup"):
-        await msg.reply(phrases.command_only_pm())
-        return
 
     await msg.answer(
         phrases.select_action(), reply_markup=keyboards.polls_menu()
     )
 
-
 @dp.message_handler(content_types=["poll"])
+@pm_only
 async def save_poll(msg: types.Message):
     """сохраняет отправленный опрос"""
 
     # не реагируем на викторины
     if msg.poll.type == "quiz":
-        return
-
-    # не реагируем на опросы в чатах
-    if msg.chat.type in ("group", "supergroup"):
         return
 
     new_poll = Poll(
@@ -59,12 +51,9 @@ async def save_poll(msg: types.Message):
 
 
 @dp.message_handler(Text(equals="Сохраненные опросы"))
+@pm_only
 async def show_polls(msg: types.Message):
     """предоставляет список сохраненных опросов"""
-
-    # не реагируем на сообщение в чатах
-    if msg.chat.type in ("group", "supergroup"):
-        return
 
     saved_polls = await db.get_polls()
 
@@ -82,12 +71,9 @@ async def show_polls(msg: types.Message):
 
 
 @dp.message_handler(Text(startswith="Опрос"))
+@pm_only
 async def show_poll_menu(msg: types.Message):
     """показывает меню управления сохраненным опросом"""
-
-    # не реагируем на сообщение в чатах
-    if msg.chat.type in ("group", "supergroup"):
-        return
 
     # отделяем название опроса от команды
     poll_question = msg.text.replace("Опрос", "").strip("' ")
@@ -108,12 +94,9 @@ async def show_poll_menu(msg: types.Message):
 
 
 @dp.message_handler(Text(startswith="Удалить опрос"))
+@pm_only
 async def delete_poll(msg: types.Message):
     """удаляет сохраненный опрос из базы"""
-
-    # не реагируем на сообщение в чатах
-    if msg.chat.type in ("group", "supergroup"):
-        return
 
     poll_question = msg.text.replace("Удалить опрос", "").strip("' ")
 
@@ -123,12 +106,9 @@ async def delete_poll(msg: types.Message):
 
 
 @dp.message_handler(Text(startswith="Отправить в чаты опрос"))
+@pm_only
 async def send_poll(msg: types.Message):
     """отправляет опрос в чаты бота"""
-
-    # не реагируем на сообщение в чатах
-    if msg.chat.type in ("group", "supergroup"):
-        return
 
     # отделяем название опроса от команды
     poll_question = msg.text.replace("Отправить в чаты опрос", "").strip("' ")
