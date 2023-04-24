@@ -3,12 +3,19 @@ import yaml
 
 
 @dataclass
+class DatabaseConfig:
+    type: str = None
+    name: str = None
+
+
+@dataclass
 class OpenWeatherConfig:
     api_key: str = None
 
 
 @dataclass
 class Config:
+    db: DatabaseConfig = None
     weather: OpenWeatherConfig = None
 
 
@@ -18,6 +25,10 @@ def setup_config(config_path) -> Config:
 
     config = Config()
 
+    config.db = DatabaseConfig(
+        type=raw_config["database"]["type"],
+        name=raw_config["database"]["name"],
+    )
     config.weather = OpenWeatherConfig(
         api_key=raw_config["openweather"]["api_key"],
     )

@@ -3,15 +3,8 @@ from dataclasses import dataclass
 
 @dataclass
 class WeatherRequest:
-    city: str
-    country: str = ""
-    state: str = ""
-
-    @property
-    def as_query(self):
-        """возвращает строку из значений атрибутов через запятую"""
-
-        return ",".join([val for val in self.__dict__.values() if val])
+    user_id: int
+    city_query: str = ""
 
 
 @dataclass

@@ -2,8 +2,9 @@ from logging import getLogger
 from typing import Optional
 from aiohttp import TCPConnector
 from aiohttp.client import ClientSession
+from aiogram import types
 
-from app.bot.config import Config
+from .config import Config
 from .dataclasses import WeatherRequest, WeatherResponse
 from .exception import WeatherException
 
@@ -21,19 +22,15 @@ class WeatherService:
         self.session = ClientSession(connector=TCPConnector(verify_ssl=False))
         self.api_key = config.weather.api_key
 
-    def prepare_request(self, msg_text: str) -> WeatherRequest | None:
+    def prepare_request(self, msg: types.Message) -> WeatherRequest:
         """подготавливает текст сообщения с командой к обработке"""
 
-        msg_text_lst = [word.strip(" ,.!?;:") for word in msg_text.split(" ")]
-        city = msg_text_lst[1:2]
-
-        if not city:
-            return None
+        city_lst = msg.text.split(" ")[1:]
+        city_query = ",".join([v.strip(" ,.!?;:'") for v in city_lst])
 
         request = WeatherRequest(
-            city=city[0],
-            country="".join(msg_text_lst[2:3]),
-            state="".join(msg_text_lst[3:4]),
+            user_id=msg["from"]["id"],
+            city_query=city_query,
         )
         return request
 
@@ -53,7 +50,7 @@ class WeatherService:
         url = self._build_url(
             method="weather",
             params={
-                "q": request.as_query,
+                "q": request.city_query,
                 "appid": self.api_key,
                 "units": "metric",
                 "lang": "ru",
