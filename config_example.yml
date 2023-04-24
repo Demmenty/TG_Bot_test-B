@@ -1,0 +1,13 @@
+bot:
+  token: mytoken
+openweather:
+  api_key: mykey
+exchangerates:
+  api_key: mykey
+openai:
+  api_key: mykey
+thecatapi:
+  api_key: mykey
+database:
+  type: sqlite
+  name: sqlite.db
