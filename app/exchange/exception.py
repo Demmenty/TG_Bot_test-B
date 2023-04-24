@@ -1,0 +1,2 @@
+class ConvertationException(BaseException):
+    pass

@@ -1,0 +1,6 @@
+config.yml
+__pycache__/
+.venv
+company.txt
+pyproject.toml
+sqlite.db
